@@ -6,80 +6,82 @@
     <style>
         body { 
             font-family: -apple-system, sans-serif; 
-            margin: 0; padding: 10px; background: transparent;
+            margin: 0; padding: 5px; background: transparent;
             display: flex; justify-content: center;
+            overflow-x: hidden;
         }
-        .container { width: 100%; max-width: 360px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 290px; box-sizing: border-box; }
+        @media (min-width: 600px) { .container { max-width: 450px; } }
         
-        /* Input Styling */
-        .weight-card { 
-            background: #800000; color: white; padding: 15px; 
-            border-radius: 12px; margin-bottom: 15px; text-align: center;
-        }
-        input { 
-            width: 80%; padding: 12px; font-size: 24px; font-weight: bold;
-            border-radius: 8px; border: none; text-align: center; margin-top: 10px;
-        }
+        .weight-card { background: #800000; color: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: center; }
+        input { width: 85%; padding: 10px; font-size: 22px; font-weight: bold; border-radius: 6px; border: none; text-align: center; margin-top: 5px; outline: none; }
 
-        /* Color Coding */
-        .section-label { font-size: 12px; font-weight: bold; text-transform: uppercase; margin: 15px 0 5px 5px; }
-        .blue-sect { color: #007bff; border-left: 4px solid #007bff; } /* Pain/Sedation */
-        .emerald-sect { color: #2ecc71; border-left: 4px solid #2ecc71; } /* Cardiac */
+        .section-label { font-size: 11px; font-weight: bold; text-transform: uppercase; margin: 12px 0 4px 5px; }
+        .blue-sect { color: #007bff; border-left: 3px solid #007bff; }    /* Pain */
+        .emerald-sect { color: #2ecc71; border-left: 3px solid #2ecc71; } /* Facilitation */
+        .red-sect { color: #e74c3c; border-left: 3px solid #e74c3c; }     /* Cardiac */
 
         .med-card { 
-            background: white; border-radius: 8px; padding: 12px; 
-            margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: white; border-radius: 8px; padding: 10px; 
+            margin-bottom: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             display: flex; justify-content: space-between; align-items: center;
+            width: 100%; box-sizing: border-box;
         }
-        .name-box { display: flex; flex-direction: column; }
-        .med-name { font-weight: bold; color: #333; font-size: 15px; }
-        .protocol { font-size: 11px; color: #666; }
-        .dose-box { text-align: right; }
-        .ml-val { font-size: 18px; font-weight: 900; color: #d9534f; }
-        .unit { font-size: 12px; color: #333; margin-left: 2px; }
+        .med-name { font-weight: bold; color: #333; font-size: 14px; }
+        .protocol { font-size: 10px; color: #666; display: block; }
+        .ml-val { font-size: 17px; font-weight: 900; color: #d9534f; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="weight-card">
-            <label>PATIENT WEIGHT (KG)</label><br>
+            <label style="font-size: 12px; letter-spacing: 1px;">PATIENT WEIGHT (KG)</label><br>
             <input type="number" id="weight" placeholder="---" oninput="calc()">
         </div>
 
-        <div class="section-label blue-sect">&nbsp; Pain / Sedation</div>
-        
+        <div class="section-label blue-sect">&nbsp; Pain Management</div>
         <div class="med-card">
-            <div class="name-box"><span class="med-name">Fentanyl</span><span class="protocol">1mcg/kg (50mcg/mL)</span></div>
-            <div class="dose-box"><span class="ml-val" id="fent">0</span><span class="unit">mL</span></div>
+            <div><span class="med-name">Fentanyl (Pain)</span><span class="protocol">1mcg/kg (Max 100mcg)</span></div>
+            <div><span class="ml-val" id="fentPain">0</span><small> mL</small></div>
         </div>
 
+        <div class="section-label emerald-sect">&nbsp; Facilitation (MFI)</div>
         <div class="med-card">
-            <div class="name-box"><span class="med-name">Etomidate</span><span class="protocol">0.3mg/kg (2mg/mL)</span></div>
-            <div class="dose-box"><span class="ml-val" id="etom">0</span><span class="unit">mL</span></div>
+            <div><span class="med-name">Fentanyl (MFI)</span><span class="protocol">1mcg/kg (No Max)</span></div>
+            <div><span class="ml-val" id="fentMfi">0</span><small> mL</small></div>
+        </div>
+        <div class="med-card">
+            <div><span class="med-name">Etomidate</span><span class="protocol">0.3mg/kg (2mg/mL)</span></div>
+            <div><span class="ml-val" id="etom">0</span><small> mL</small></div>
         </div>
 
-        <div class="section-label emerald-sect">&nbsp; Cardiac</div>
-
+        <div class="section-label red-sect">&nbsp; Cardiac</div>
         <div class="med-card">
-            <div class="name-box"><span class="med-name">Diltiazem</span><span class="protocol">0.25mg/kg (5mg/mL)</span></div>
-            <div class="dose-box"><span class="ml-val" id="dilt">0</span><span class="unit">mL</span></div>
+            <div><span class="med-name">Diltiazem</span><span class="protocol">0.25mg/kg (Max 25mg)</span></div>
+            <div><span class="ml-val" id="dilt">0</span><small> mL</small></div>
         </div>
     </div>
 
     <script>
         function calc() {
-            const kg = parseFloat(document.getElementById('weight').value);
+            const kg = parseFloat(document.getElementById('weight').value) || 0;
             if (kg > 0) {
-                // Fentanyl: 1mcg/kg | Conc: 50mcg/1mL
-                document.getElementById('fent').innerText = ((kg * 1) / 50).toFixed(2);
+                // Fentanyl Pain: 1mcg/kg, but usually capped at 100mcg (2mL) per Pinellas protocol
+                let pDose = (kg * 1 > 100) ? 100 : kg * 1;
+                document.getElementById('fentPain').innerText = (pDose / 50).toFixed(2);
+
+                // Fentanyl MFI: 1mcg/kg (no cap for induction)
+                document.getElementById('fentMfi').innerText = ((kg * 1) / 50).toFixed(2);
                 
-                // Etomidate: 0.3mg/kg | Conc: 2mg/1mL
+                // Etomidate: 0.3mg/kg
                 document.getElementById('etom').innerText = ((kg * 0.3) / 2).toFixed(2);
                 
-                // Diltiazem: 0.25mg/kg | Conc: 5mg/1mL
-                document.getElementById('dilt').innerText = ((kg * 0.25) / 5).toFixed(2);
+                // Diltiazem: 0.25mg/kg, capped at 25mg (5mL)
+                let dDose = (kg * 0.25 > 25) ? 25 : kg * 0.25;
+                document.getElementById('dilt').innerText = (dDose / 5).toFixed(2);
             } else {
-                document.getElementById('fent').innerText = "0";
+                document.getElementById('fentPain').innerText = "0";
+                document.getElementById('fentMfi').innerText = "0";
                 document.getElementById('etom').innerText = "0";
                 document.getElementById('dilt').innerText = "0";
             }
