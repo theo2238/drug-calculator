@@ -1,174 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>PHFR Weight-Based Guide</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background-color: #0f172a; color: white; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        .sticky-input { position: sticky; top: 0; background-color: #1e293b; z-index: 50; border-bottom: 2px solid #3b82f6; padding-top: 60px; }
-        .drug-row { background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 6px solid #3b82f6; }
-        
-        /* Color Grouping */
-        .group-mfi { border-left-color: #10b981 !important; } /* Green */
-        .group-pain { border-left-color: #3b82f6 !important; } /* Blue */
-        .group-cardiac { border-left-color: #ef4444 !important; } /* Red */
-        
-        .label-mfi { color: #10b981; }
-        .label-pain { color: #3b82f6; }
-        .label-cardiac { color: #ef4444; }
+<style>
+  /* This ensures the calculator never goes wider than the phone screen */
+  body { 
+    margin: 0; 
+    padding: 0; 
+    width: 100vw; 
+    overflow-x: hidden; 
+    display: flex;
+    justify-content: center;
+  }
 
-        .calc-box { background: #0f172a; border-radius: 8px; padding: 10px; margin-top: 8px; border: 1px solid #334155; }
-        .unit-btn { flex: 1; padding: 8px; border-radius: 6px; font-weight: 800; font-size: 12px; transition: 0.2s; }
-        .unit-btn.active { background: #3b82f6; color: white; }
-    </style>
-</head>
-<body class="pb-24">
+  .card { 
+    width: 92%;           /* Leave a small margin for aesthetics */
+    max-width: 400px;     /* Keeps it looking good on tablets too */
+    margin: 10px auto; 
+    box-sizing: border-box; 
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
 
-    <div class="sticky-input p-4 shadow-2xl">
-        <div class="flex justify-between items-center mb-4 px-2">
-            <a href="index.html" class="text-blue-500"><i class="fas fa-chevron-left text-xl"></i></a>
-            <h1 class="text-lg font-bold uppercase tracking-tight">Weight-Based Calc</h1>
-            <div style="width:20px"></div>
-        </div>
-        <div class="flex space-x-3 items-center">
-            <input type="number" id="masterWeight" oninput="calculateAll()" placeholder="PATIENT WEIGHT" 
-                class="flex-1 p-4 bg-gray-900 border border-gray-700 rounded-xl text-3xl font-black text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <div class="flex bg-gray-800 rounded-xl p-1 w-32 h-14 items-center">
-                <button id="lbsBtn" class="unit-btn active" onclick="setUnit('lbs')">LBS</button>
-                <button id="kgBtn" class="unit-btn" onclick="setUnit('kg')">KG</button>
-            </div>
-        </div>
-    </div>
+  input { 
+    width: 100%;          /* Forces the input to stay inside the card */
+    font-size: 18px; 
+    padding: 12px; 
+    box-sizing: border-box; 
+  }
 
-    <div id="calcList" class="p-4">
-
-        <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 px-1">Facilitation (MFI)</h2>
-        
-        <div class="drug-row group-mfi" data-dose="0.3" data-conc="2" data-max="20" data-unit="mg">
-            <div class="flex justify-between font-bold label-mfi">
-                <span>Etomidate</span>
-                <span class="text-[10px] text-gray-500 uppercase">0.3 mg/kg</span>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mt-1">
-                <div class="calc-box text-center">
-                    <div class="text-[9px] text-gray-500 uppercase font-bold">Dose (mg)</div>
-                    <div class="res-dose font-black text-2xl">--</div>
-                </div>
-                <div class="calc-box text-center border-emerald-900/50">
-                    <div class="text-[9px] text-emerald-500 uppercase font-bold">Draw (mL)</div>
-                    <div class="res-vol font-black text-2xl text-emerald-400">--</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="drug-row group-mfi" data-dose="2" data-conc="50" data-max="0" data-unit="mcg">
-            <div class="flex justify-between font-bold label-mfi">
-                <span>Fentanyl (MFI Pre-treat)</span>
-                <span class="text-[10px] text-gray-500 uppercase">2 mcg/kg</span>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mt-1">
-                <div class="calc-box text-center">
-                    <div class="text-[9px] text-gray-500 uppercase font-bold">Dose (mcg)</div>
-                    <div class="res-dose font-black text-2xl">--</div>
-                </div>
-                <div class="calc-box text-center border-emerald-900/50">
-                    <div class="text-[9px] text-emerald-500 uppercase font-bold">Draw (mL)</div>
-                    <div class="res-vol font-black text-2xl text-emerald-400">--</div>
-                </div>
-            </div>
-        </div>
-
-        <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 mt-6 mb-2 px-1">Pain Management</h2>
-
-        <div class="drug-row group-pain" data-dose="1" data-conc="50" data-max="100" data-unit="mcg">
-            <div class="flex justify-between font-bold label-pain">
-                <span>Fentanyl</span>
-                <span class="text-[10px] text-gray-500 uppercase">1 mcg/kg</span>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mt-1">
-                <div class="calc-box text-center">
-                    <div class="text-[9px] text-gray-500 uppercase font-bold">Dose (mcg)</div>
-                    <div class="res-dose font-black text-2xl">--</div>
-                </div>
-                <div class="calc-box text-center border-blue-900/50">
-                    <div class="text-[9px] text-blue-400 uppercase font-bold">Draw (mL)</div>
-                    <div class="res-vol font-black text-2xl text-blue-400">--</div>
-                </div>
-            </div>
-        </div>
-
-        <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 mt-6 mb-2 px-1">Cardiac RVR</h2>
-
-        <div class="drug-row group-cardiac" data-dose="0.25" data-conc="5" data-max="25" data-unit="mg">
-            <div class="flex justify-between font-bold label-cardiac">
-                <span>Cardizem (Diltiazem)</span>
-                <span class="text-[10px] text-gray-500 uppercase">0.25 mg/kg</span>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mt-1">
-                <div class="calc-box text-center">
-                    <div class="text-[9px] text-gray-500 uppercase font-bold">Dose (mg)</div>
-                    <div class="res-dose font-black text-2xl">--</div>
-                </div>
-                <div class="calc-box text-center border-rose-900/50">
-                    <div class="text-[9px] text-rose-500 uppercase font-bold">Draw (mL)</div>
-                    <div class="res-vol font-black text-2xl text-rose-400">--</div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <nav class="fixed bottom-0 w-full bg-[#0f172a] border-t border-gray-800 flex justify-around p-4 pb-8 text-[10px] font-bold uppercase text-gray-500">
-        <a href="index.html" class="flex flex-col items-center">
-            <i class="fas fa-house text-lg mb-1"></i><span>Home</span>
-        </a>
-        <div class="flex flex-col items-center text-blue-500">
-            <i class="fas fa-calculator text-lg mb-1"></i><span>Weight Calc</span>
-        </div>
-        <a href="drugs.html" class="flex flex-col items-center">
-            <i class="fas fa-syringe text-lg mb-1"></i><span>Drugs</span>
-        </a>
-    </nav>
-
-    <script>
-        let currentUnit = 'lbs';
-
-        function setUnit(u) {
-            currentUnit = u;
-            document.getElementById('lbsBtn').classList.toggle('active', u === 'lbs');
-            document.getElementById('kgBtn').classList.toggle('active', u === 'kg');
-            calculateAll();
-        }
-
-        function calculateAll() {
-            const val = parseFloat(document.getElementById('masterWeight').value);
-            if (!val) { reset(); return; }
-
-            const kg = currentUnit === 'lbs' ? val / 2.2046 : val;
-            const rows = document.querySelectorAll('.drug-row');
-
-            rows.forEach(row => {
-                const dosePerKg = parseFloat(row.dataset.dose);
-                const concentration = parseFloat(row.dataset.conc);
-                const maxDose = parseFloat(row.dataset.max);
-                
-                let calculatedDose = kg * dosePerKg;
-                if (maxDose > 0 && calculatedDose > maxDose) calculatedDose = maxDose;
-                
-                const volume = (calculatedDose / concentration).toFixed(2);
-                
-                row.querySelector('.res-dose').innerText = calculatedDose.toFixed(1);
-                row.querySelector('.res-vol').innerText = volume + ' mL';
-            });
-        }
-
-        function reset() {
-            document.querySelectorAll('.res-dose').forEach(el => el.innerText = '--');
-            document.querySelectorAll('.res-vol').forEach(el => el.innerText = '--');
-        }
-    </script>
-</body>
-</html>
+  /* Make sure the results row doesn't push the width out */
+  .med-row { 
+    display: flex; 
+    justify-content: space-between; 
+    width: 100%; 
+    box-sizing: border-box;
+    padding: 10px 0;
+  }
+</style>
