@@ -3,48 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PHFR Calculator</title>
     <style>
         body { 
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0; padding: 10px; background-color: transparent; 
+            font-family: -apple-system, sans-serif; 
+            margin: 0; padding: 10px; background: transparent;
             display: flex; justify-content: center;
         }
-        .card { 
-            background: white; border-radius: 12px; padding: 15px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 100%; max-width: 350px; box-sizing: border-box;
-            border: 1px solid #ddd;
+        .container { width: 100%; max-width: 360px; box-sizing: border-box; }
+        
+        /* Input Styling */
+        .weight-card { 
+            background: #800000; color: white; padding: 15px; 
+            border-radius: 12px; margin-bottom: 15px; text-align: center;
         }
-        label { font-weight: bold; font-size: 14px; color: #555; }
         input { 
-            width: 100%; padding: 15px; font-size: 20px; 
-            border: 2px solid #800000; /* PHFR Maroon */
-            border-radius: 8px; box-sizing: border-box; margin-top: 5px;
+            width: 80%; padding: 12px; font-size: 24px; font-weight: bold;
+            border-radius: 8px; border: none; text-align: center; margin-top: 10px;
         }
-        .results { margin-top: 15px; }
-        .med-row { 
+
+        /* Color Coding */
+        .section-label { font-size: 12px; font-weight: bold; text-transform: uppercase; margin: 15px 0 5px 5px; }
+        .blue-sect { color: #007bff; border-left: 4px solid #007bff; } /* Pain/Sedation */
+        .emerald-sect { color: #2ecc71; border-left: 4px solid #2ecc71; } /* Cardiac */
+
+        .med-card { 
+            background: white; border-radius: 8px; padding: 12px; 
+            margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #eee; 
         }
-        .med-name { font-weight: 600; color: #333; font-size: 16px; }
-        .dose-val { font-weight: 800; color: #d9534f; font-size: 18px; }
+        .name-box { display: flex; flex-direction: column; }
+        .med-name { font-weight: bold; color: #333; font-size: 15px; }
+        .protocol { font-size: 11px; color: #666; }
+        .dose-box { text-align: right; }
+        .ml-val { font-size: 18px; font-weight: 900; color: #d9534f; }
+        .unit { font-size: 12px; color: #333; margin-left: 2px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <label>Patient Weight (kg)</label>
-        <input type="number" id="weight" placeholder="0" oninput="calc()">
+    <div class="container">
+        <div class="weight-card">
+            <label>PATIENT WEIGHT (KG)</label><br>
+            <input type="number" id="weight" placeholder="---" oninput="calc()">
+        </div>
+
+        <div class="section-label blue-sect">&nbsp; Pain / Sedation</div>
         
-        <div class="results">
-            <div class="med-row">
-                <span class="med-name">Fentanyl (1mcg/kg)</span>
-                <span class="dose-val"><span id="fent">0</span> mL</span>
-            </div>
-            <div class="med-row">
-                <span class="med-name">Versed (0.1mg/kg)</span>
-                <span class="dose-val"><span id="versed">0</span> mL</span>
-            </div>
+        <div class="med-card">
+            <div class="name-box"><span class="med-name">Fentanyl</span><span class="protocol">1mcg/kg (50mcg/mL)</span></div>
+            <div class="dose-box"><span class="ml-val" id="fent">0</span><span class="unit">mL</span></div>
+        </div>
+
+        <div class="med-card">
+            <div class="name-box"><span class="med-name">Etomidate</span><span class="protocol">0.3mg/kg (2mg/mL)</span></div>
+            <div class="dose-box"><span class="ml-val" id="etom">0</span><span class="unit">mL</span></div>
+        </div>
+
+        <div class="section-label emerald-sect">&nbsp; Cardiac</div>
+
+        <div class="med-card">
+            <div class="name-box"><span class="med-name">Diltiazem</span><span class="protocol">0.25mg/kg (5mg/mL)</span></div>
+            <div class="dose-box"><span class="ml-val" id="dilt">0</span><span class="unit">mL</span></div>
         </div>
     </div>
 
@@ -52,13 +70,18 @@
         function calc() {
             const kg = parseFloat(document.getElementById('weight').value);
             if (kg > 0) {
-                // Fentanyl 50mcg/1mL
+                // Fentanyl: 1mcg/kg | Conc: 50mcg/1mL
                 document.getElementById('fent').innerText = ((kg * 1) / 50).toFixed(2);
-                // Versed 5mg/1mL
-                document.getElementById('versed').innerText = ((kg * 0.1) / 5).toFixed(2);
+                
+                // Etomidate: 0.3mg/kg | Conc: 2mg/1mL
+                document.getElementById('etom').innerText = ((kg * 0.3) / 2).toFixed(2);
+                
+                // Diltiazem: 0.25mg/kg | Conc: 5mg/1mL
+                document.getElementById('dilt').innerText = ((kg * 0.25) / 5).toFixed(2);
             } else {
                 document.getElementById('fent').innerText = "0";
-                document.getElementById('versed').innerText = "0";
+                document.getElementById('etom').innerText = "0";
+                document.getElementById('dilt').innerText = "0";
             }
         }
     </script>
