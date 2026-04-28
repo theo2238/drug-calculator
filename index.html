@@ -7,22 +7,27 @@
         * { box-sizing: border-box; }
         body { font-family: -apple-system, sans-serif; margin: 0; padding: 10px; background: transparent; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; min-width: 280px; }
+        
         .toggle-row { display: flex; justify-content: center; margin-bottom: 12px; }
-        .tgl { background: #e0e0e0; border: none; padding: 8px 20px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .tgl { background: #e0e0e0; border: none; padding: 10px 25px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .tgl.active { background: #800000; color: white; }
-        .t-left { border-radius: 6px 0 0 6px; }
-        .t-right { border-radius: 0 6px 6px 0; }
+        .t-left { border-radius: 8px 0 0 8px; border-right: 1px solid #ccc; }
+        .t-right { border-radius: 0 8px 8px 0; }
+
         .header-box { background: #800000; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; }
         input { width: 100%; max-width: 180px; padding: 12px; font-size: 26px; font-weight: bold; border-radius: 8px; border: none; text-align: center; margin-top: 8px; outline: none; }
+        
         .section-name { font-size: 12px; font-weight: bold; text-transform: uppercase; margin: 18px 0 6px 5px; letter-spacing: 0.5px; }
         .blue { color: #007bff; border-left: 4px solid #007bff; }
         .green { color: #2ecc71; border-left: 4px solid #2ecc71; }
         .red { color: #e74c3c; border-left: 4px solid #e74c3c; }
+
         .card { background: white; border-radius: 10px; padding: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.12); }
         .med-info { display: flex; flex-direction: column; flex: 1; }
         .m-name { font-weight: bold; color: #222; font-size: 16px; }
         .m-prot { font-size: 10px; color: #666; margin-bottom: 4px; }
         .m-dose { font-size: 15px; color: #800000; font-weight: 800; background: #fff5f5; padding: 2px 6px; border-radius: 4px; display: inline-block; width: fit-content; }
+
         .m-vol { text-align: right; min-width: 95px; border-left: 1px solid #eee; padding-left: 10px; }
         .val { font-size: 24px; font-weight: 900; color: #d9534f; }
         .unit-label { font-size: 14px; color: #333; font-weight: bold; }
@@ -32,13 +37,13 @@
 <body>
     <div class="container">
         <div class="toggle-row">
-            <button id="kgBtn" class="tgl t-left active" onclick="setUnit('kg')">KG</button>
-            <button id="lbBtn" class="tgl t-right" onclick="setUnit('lbs')">LBS</button>
+            <button id="kgBtn" class="tgl t-left active" onclick="updateUnit('kg')">KG</button>
+            <button id="lbBtn" class="tgl t-right" onclick="updateUnit('lbs')">LBS</button>
         </div>
 
         <div class="header-box">
-            <div id="wLabel" style="font-size: 13px; font-weight: bold;">WEIGHT (KG)</div>
-            <input type="number" id="wInput" placeholder="0" oninput="runCalc()">
+            <div id="wLabel" style="font-size: 13px; font-weight: bold;">PATIENT WEIGHT (KG)</div>
+            <input type="number" id="wInput" placeholder="0" oninput="calculateDoses()" step="any">
         </div>
 
         <div class="section-name blue">&nbsp; Pain Management</div>
@@ -46,9 +51,9 @@
             <div class="med-info">
                 <span class="m-name">Fentanyl (Pain)</span>
                 <span class="m-prot">1mcg/kg (Max 100mcg)</span>
-                <span class="m-dose" id="res_fP_mg">0 mcg</span>
+                <span class="m-dose" id="disp_fP_mg">0 mcg</span>
             </div>
-            <div class="m-vol"><span class="val" id="res_fP_ml">0</span><span class="unit-label"> mL</span></div>
+            <div class="m-vol"><span class="val" id="disp_fP_ml">0.00</span><span class="unit-label"> mL</span></div>
         </div>
 
         <div class="section-name green">&nbsp; Facilitation (MFI)</div>
@@ -56,17 +61,17 @@
             <div class="med-info">
                 <span class="m-name">Fentanyl (MFI)</span>
                 <span class="m-prot">2mcg/kg (50mcg/mL)</span>
-                <span class="m-dose" id="res_fM_mg">0 mcg</span>
+                <span class="m-dose" id="disp_fM_mg">0 mcg</span>
             </div>
-            <div class="m-vol"><span class="val" id="res_fM_ml">0</span><span class="unit-label"> mL</span></div>
+            <div class="m-vol"><span class="val" id="disp_fM_ml">0.00</span><span class="unit-label"> mL</span></div>
         </div>
         <div class="card">
             <div class="med-info">
                 <span class="m-name">Etomidate</span>
                 <span class="m-prot">0.3mg/kg (2mg/mL)</span>
-                <span class="m-dose" id="res_e_mg">0 mg</span>
+                <span class="m-dose" id="disp_e_mg">0 mg</span>
             </div>
-            <div class="m-vol"><span class="val" id="res_e_ml">0</span><span class="unit-label"> mL</span></div>
+            <div class="m-vol"><span class="val" id="disp_e_ml">0.00</span><span class="unit-label"> mL</span></div>
         </div>
 
         <div class="section-name red">&nbsp; Cardiac</div>
@@ -74,61 +79,69 @@
             <div class="med-info">
                 <span class="m-name">Diltiazem</span>
                 <span class="m-prot">0.25mg/kg (Max 25mg)</span>
-                <span class="m-dose" id="res_d_mg">0 mg</span>
+                <span class="m-dose" id="disp_d_mg">0 mg</span>
             </div>
-            <div class="m-vol"><span class="val" id="res_d_ml">0</span><span class="unit-label"> mL</span></div>
+            <div class="m-vol"><span class="val" id="disp_d_ml">0.00</span><span class="unit-label"> mL</span></div>
         </div>
 
         <div class="footer-disclaimer">
-            <strong>CLINICAL NOTICE:</strong> Reference only. Verify with <strong>PCEMS Manual</strong>.
+            <strong>NOTICE:</strong> Reference only. Verify with <strong>PCEMS Manual</strong>.
         </div>
     </div>
 
     <script>
-        let currentUnit = 'kg';
+        let selectedUnit = 'kg';
 
-        function setUnit(u) {
-            currentUnit = u;
+        function updateUnit(u) {
+            selectedUnit = u;
             document.getElementById('kgBtn').classList.toggle('active', u === 'kg');
             document.getElementById('lbBtn').classList.toggle('active', u === 'lbs');
-            document.getElementById('wLabel').innerText = `WEIGHT (${u.toUpperCase()})`;
-            runCalc();
+            document.getElementById('wLabel').innerText = `PATIENT WEIGHT (${u.toUpperCase()})`;
+            calculateDoses(); // Trigger math immediately on toggle
         }
 
-        function runCalc() {
-            const inputVal = parseFloat(document.getElementById('wInput').value);
+        function calculateDoses() {
+            const rawValue = document.getElementById('wInput').value;
+            const numValue = parseFloat(rawValue);
             
-            if (!isNaN(inputVal) && inputVal > 0) {
-                const kg = (currentUnit === 'lbs') ? (inputVal / 2.20462) : inputVal;
+            // Elements
+            const ids = {
+                fP_ml: 'disp_fP_ml', fM_ml: 'disp_fM_ml', e_ml: 'disp_e_ml', d_ml: 'disp_d_ml',
+                fP_mg: 'disp_fP_mg', fM_mg: 'disp_fM_mg', e_mg: 'disp_e_mg', d_mg: 'disp_d_mg'
+            };
 
-                // Fentanyl Pain: 1mcg/kg (Max 100mcg)
-                let fpMcg = Math.min(kg * 1, 100);
-                document.getElementById('res_fP_mg').innerText = fpMcg.toFixed(1) + " mcg";
-                document.getElementById('res_fP_ml').innerText = (fpMcg / 50).toFixed(2);
+            if (!isNaN(numValue) && numValue > 0) {
+                const weightInKg = (selectedUnit === 'lbs') ? (numValue / 2.20462) : numValue;
 
-                // Fentanyl MFI: 2mcg/kg (No Max)
-                let fmMcg = kg * 2;
-                document.getElementById('res_fM_mg').innerText = fmMcg.toFixed(1) + " mcg";
-                document.getElementById('res_fM_ml').innerText = (fmMcg / 50).toFixed(2);
+                // Fentanyl Pain (1mcg/kg, Max 100mcg)
+                let fPainAmt = Math.min(weightInKg * 1, 100);
+                document.getElementById(ids.fP_mg).innerText = fPainAmt.toFixed(1) + " mcg";
+                document.getElementById(ids.fP_ml).innerText = (fPainAmt / 50).toFixed(2);
 
-                // Etomidate: 0.3mg/kg
-                let eMg = kg * 0.3;
-                document.getElementById('res_e_mg').innerText = eMg.toFixed(1) + " mg";
-                document.getElementById('res_e_ml').innerText = (eMg / 2).toFixed(2);
+                // Fentanyl MFI (2mcg/kg)
+                let fMfiAmt = weightInKg * 2;
+                document.getElementById(ids.fM_mg).innerText = fMfiAmt.toFixed(1) + " mcg";
+                document.getElementById(ids.fM_ml).innerText = (fMfiAmt / 50).toFixed(2);
 
-                // Diltiazem: 0.25mg/kg (Max 25mg)
-                let dMg = Math.min(kg * 0.25, 25);
-                document.getElementById('res_d_mg').innerText = dMg.toFixed(1) + " mg";
-                document.getElementById('res_d_ml').innerText = (dMg / 5).toFixed(2);
+                // Etomidate (0.3mg/kg)
+                let etomAmt = weightInKg * 0.3;
+                document.getElementById(ids.e_mg).innerText = etomAmt.toFixed(1) + " mg";
+                document.getElementById(ids.e_ml).innerText = (etomAmt / 2).toFixed(2);
+
+                // Diltiazem (0.25mg/kg, Max 25mg)
+                let diltAmt = Math.min(weightInKg * 0.25, 25);
+                document.getElementById(ids.d_mg).innerText = diltAmt.toFixed(1) + " mg";
+                document.getElementById(ids.d_ml).innerText = (diltAmt / 5).toFixed(2);
             } else {
-                document.getElementById('res_fP_ml').innerText = "0";
-                document.getElementById('res_fM_ml').innerText = "0";
-                document.getElementById('res_e_ml').innerText = "0";
-                document.getElementById('res_d_ml').innerText = "0";
-                document.getElementById('res_fP_mg').innerText = "0 mcg";
-                document.getElementById('res_fM_mg').innerText = "0 mcg";
-                document.getElementById('res_e_mg').innerText = "0 mg";
-                document.getElementById('res_d_mg').innerText = "0 mg";
+                // Reset all to 0
+                document.getElementById(ids.fP_ml).innerText = "0.00";
+                document.getElementById(ids.fM_ml).innerText = "0.00";
+                document.getElementById(ids.e_ml).innerText = "0.00";
+                document.getElementById(ids.d_ml).innerText = "0.00";
+                document.getElementById(ids.fP_mg).innerText = "0 mcg";
+                document.getElementById(ids.fM_mg).innerText = "0 mcg";
+                document.getElementById(ids.e_mg).innerText = "0 mg";
+                document.getElementById(ids.d_mg).innerText = "0 mg";
             }
         }
     </script>
