@@ -4,25 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        /* RESET & BASE */
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, sans-serif; 
             margin: 0; padding: 10px; background: transparent;
             display: flex; justify-content: center;
         }
-        
-        .container { 
-            width: 100%; 
-            max-width: 450px; /* Limits size on desktop */
-            min-width: 280px; /* Prevents total collapse */
-        }
+        .container { width: 100%; max-width: 450px; min-width: 280px; }
 
         /* UNIT TOGGLE */
         .toggle-row { display: flex; justify-content: center; margin-bottom: 12px; }
         .tgl { 
             background: #e0e0e0; border: none; padding: 8px 20px; 
-            font-size: 12px; font-weight: bold; cursor: pointer; 
+            font-size: 13px; font-weight: bold; cursor: pointer; 
         }
         .tgl.active { background: #800000; color: white; }
         .t-left { border-radius: 6px 0 0 6px; }
@@ -34,28 +28,42 @@
             border-radius: 10px; text-align: center; margin-bottom: 15px;
         }
         input { 
-            width: 100%; max-width: 200px; padding: 12px; font-size: 24px; 
+            width: 100%; max-width: 180px; padding: 12px; font-size: 26px; 
             font-weight: bold; border-radius: 8px; border: none; 
-            text-align: center; margin-top: 8px;
+            text-align: center; margin-top: 8px; outline: none;
         }
 
         /* MEDICATION CARDS */
-        .section-name { font-size: 11px; font-weight: bold; text-transform: uppercase; margin: 15px 0 5px 5px; }
+        .section-name { font-size: 12px; font-weight: bold; text-transform: uppercase; margin: 18px 0 6px 5px; letter-spacing: 0.5px; }
         .blue { color: #007bff; border-left: 4px solid #007bff; }
         .green { color: #2ecc71; border-left: 4px solid #2ecc71; }
         .red { color: #e74c3c; border-left: 4px solid #e74c3c; }
 
         .card { 
-            background: white; border-radius: 8px; padding: 12px; 
-            margin-bottom: 6px; display: flex; justify-content: space-between; 
-            align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: white; border-radius: 10px; padding: 14px; 
+            margin-bottom: 8px; display: flex; justify-content: space-between; 
+            align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.12);
         }
-        .med-info { display: flex; flex-direction: column; }
-        .m-name { font-weight: bold; color: #333; font-size: 15px; }
-        .m-prot { font-size: 10px; color: #777; }
-        .m-dose { font-size: 12px; color: #800000; font-weight: bold; margin-top: 3px; }
-        .m-vol { text-align: right; min-width: 80px; }
-        .val { font-size: 20px; font-weight: 900; color: #d9534f; }
+        .med-info { display: flex; flex-direction: column; flex: 1; }
+        .m-name { font-weight: bold; color: #222; font-size: 16px; }
+        .m-prot { font-size: 10px; color: #666; margin-bottom: 4px; }
+        
+        .m-dose { 
+            font-size: 15px; color: #800000; font-weight: 800; 
+            background: #fff5f5; padding: 2px 6px; border-radius: 4px;
+            display: inline-block; width: fit-content;
+        }
+
+        .m-vol { text-align: right; min-width: 95px; border-left: 1px solid #eee; padding-left: 10px; }
+        .val { font-size: 24px; font-weight: 900; color: #d9534f; }
+        .unit-label { font-size: 14px; color: #333; font-weight: bold; }
+
+        /* DISCLAIMER STYLE */
+        .disclaimer {
+            margin-top: 25px; padding: 15px; font-size: 11px;
+            color: #666; text-align: center; line-height: 1.4;
+            border-top: 1px solid #ddd; font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -66,8 +74,8 @@
         </div>
 
         <div class="header-box">
-            <div id="wLabel" style="font-size: 12px; font-weight: bold;">WEIGHT (KG)</div>
-            <input type="number" id="wInput" placeholder="0" oninput="calc()">
+            <div id="wLabel" style="font-size: 13px; font-weight: bold;">WEIGHT (KG)</div>
+            <input type="number" id="wInput" placeholder="0" oninput="calc()" pattern="\d*">
         </div>
 
         <div class="section-name blue">&nbsp; Pain Management</div>
@@ -77,17 +85,17 @@
                 <span class="m-prot">1mcg/kg (Max 100mcg)</span>
                 <span class="m-dose" id="fP_mg">0 mcg</span>
             </div>
-            <div class="m-vol"><span class="val" id="fP_ml">0</span><small> mL</small></div>
+            <div class="m-vol"><span class="val" id="fP_ml">0</span><span class="unit-label"> mL</span></div>
         </div>
 
         <div class="section-name green">&nbsp; Facilitation (MFI)</div>
         <div class="card">
             <div class="med-info">
                 <span class="m-name">Fentanyl (MFI)</span>
-                <span class="m-prot">1mcg/kg (50mcg/mL)</span>
+                <span class="m-prot">2mcg/kg (50mcg/mL)</span>
                 <span class="m-dose" id="fM_mg">0 mcg</span>
             </div>
-            <div class="m-vol"><span class="val" id="fM_ml">0</span><small> mL</small></div>
+            <div class="m-vol"><span class="val" id="fM_ml">0</span><span class="unit-label"> mL</span></div>
         </div>
         <div class="card">
             <div class="med-info">
@@ -95,7 +103,7 @@
                 <span class="m-prot">0.3mg/kg (2mg/mL)</span>
                 <span class="m-dose" id="e_mg">0 mg</span>
             </div>
-            <div class="m-vol"><span class="val" id="e_ml">0</span><small> mL</small></div>
+            <div class="m-vol"><span class="val" id="e_ml">0</span><span class="unit-label"> mL</span></div>
         </div>
 
         <div class="section-name red">&nbsp; Cardiac</div>
@@ -105,7 +113,14 @@
                 <span class="m-prot">0.25mg/kg (Max 25mg)</span>
                 <span class="m-dose" id="d_mg">0 mg</span>
             </div>
-            <div class="m-vol"><span class="val" id="d_ml">0</span><small> mL</small></div>
+            <div class="m-vol"><span class="val" id="d_ml">0</span><span class="unit-label"> mL</span></div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>NOTICE:</strong> This calculator is for reference only. 
+            Always verify dosages and concentrations against the current 
+            <strong>Pinellas County EMS Medical Operations Manual</strong> 
+            prior to administration. User assumes all clinical responsibility.
         </div>
     </div>
 
@@ -124,22 +139,18 @@
             let kg = (unit === 'lbs') ? (val / 2.20462) : val;
 
             if (kg > 0) {
-                // Fentanyl Pain (1mcg/kg, Max 100mcg)
                 let fpMcg = Math.min(kg * 1, 100);
                 document.getElementById('fP_mg').innerText = fpMcg.toFixed(1) + " mcg";
                 document.getElementById('fP_ml').innerText = (fpMcg / 50).toFixed(2);
 
-                // Fentanyl MFI (1mcg/kg)
-                let fmMcg = kg * 1;
+                let fmMcg = kg * 2;
                 document.getElementById('fM_mg').innerText = fmMcg.toFixed(1) + " mcg";
                 document.getElementById('fM_ml').innerText = (fmMcg / 50).toFixed(2);
 
-                // Etomidate (0.3mg/kg)
                 let eMg = kg * 0.3;
                 document.getElementById('e_mg').innerText = eMg.toFixed(1) + " mg";
                 document.getElementById('e_ml').innerText = (eMg / 2).toFixed(2);
 
-                // Diltiazem (0.25mg/kg, Max 25mg)
                 let dMg = Math.min(kg * 0.25, 25);
                 document.getElementById('d_mg').innerText = dMg.toFixed(1) + " mg";
                 document.getElementById('d_ml').innerText = (dMg / 5).toFixed(2);
