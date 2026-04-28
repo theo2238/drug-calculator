@@ -4,30 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; margin: 0; padding: 10px; background: transparent; display: flex; justify-content: center; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; background: transparent; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; min-width: 280px; }
-        
         .toggle-row { display: flex; justify-content: center; margin-bottom: 12px; }
-        .tgl { background: #e0e0e0; border: none; padding: 10px 25px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .tgl { background: #e0e0e0; border: none; padding: 12px 25px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; -webkit-appearance: none; }
         .tgl.active { background: #800000; color: white; }
         .t-left { border-radius: 8px 0 0 8px; border-right: 1px solid #ccc; }
         .t-right { border-radius: 0 8px 8px 0; }
-
         .header-box { background: #800000; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; }
-        input { width: 100%; max-width: 180px; padding: 12px; font-size: 26px; font-weight: bold; border-radius: 8px; border: none; text-align: center; margin-top: 8px; outline: none; }
-        
+        /* Improved input for mobile focus */
+        input { width: 100%; max-width: 180px; padding: 12px; font-size: 26px; font-weight: bold; border-radius: 8px; border: 2px solid transparent; text-align: center; margin-top: 8px; outline: none; background: white; color: black; }
+        input:focus { border: 2px solid #2ecc71; }
         .section-name { font-size: 12px; font-weight: bold; text-transform: uppercase; margin: 18px 0 6px 5px; letter-spacing: 0.5px; }
         .blue { color: #007bff; border-left: 4px solid #007bff; }
         .green { color: #2ecc71; border-left: 4px solid #2ecc71; }
         .red { color: #e74c3c; border-left: 4px solid #e74c3c; }
-
         .card { background: white; border-radius: 10px; padding: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.12); }
         .med-info { display: flex; flex-direction: column; flex: 1; }
         .m-name { font-weight: bold; color: #222; font-size: 16px; }
         .m-prot { font-size: 10px; color: #666; margin-bottom: 4px; }
         .m-dose { font-size: 15px; color: #800000; font-weight: 800; background: #fff5f5; padding: 2px 6px; border-radius: 4px; display: inline-block; width: fit-content; }
-
         .m-vol { text-align: right; min-width: 95px; border-left: 1px solid #eee; padding-left: 10px; }
         .val { font-size: 24px; font-weight: 900; color: #d9534f; }
         .unit-label { font-size: 14px; color: #333; font-weight: bold; }
@@ -37,13 +34,12 @@
 <body>
     <div class="container">
         <div class="toggle-row">
-            <button id="kgBtn" class="tgl t-left active" onclick="updateUnit('kg')">KG</button>
-            <button id="lbBtn" class="tgl t-right" onclick="updateUnit('lbs')">LBS</button>
+            <button id="kgBtn" class="tgl t-left active">KG</button>
+            <button id="lbBtn" class="tgl t-right">LBS</button>
         </div>
-
         <div class="header-box">
             <div id="wLabel" style="font-size: 13px; font-weight: bold;">PATIENT WEIGHT (KG)</div>
-            <input type="number" id="wInput" placeholder="0" oninput="calculateDoses()" step="any">
+            <input type="number" id="wInput" placeholder="TAP HERE" inputmode="decimal" pattern="[0-9]*">
         </div>
 
         <div class="section-name blue">&nbsp; Pain Management</div>
@@ -91,59 +87,49 @@
 
     <script>
         let selectedUnit = 'kg';
-
-        function updateUnit(u) {
-            selectedUnit = u;
-            document.getElementById('kgBtn').classList.toggle('active', u === 'kg');
-            document.getElementById('lbBtn').classList.toggle('active', u === 'lbs');
-            document.getElementById('wLabel').innerText = `PATIENT WEIGHT (${u.toUpperCase()})`;
-            calculateDoses(); // Trigger math immediately on toggle
-        }
+        const wInput = document.getElementById('wInput');
+        const kgBtn = document.getElementById('kgBtn');
+        const lbBtn = document.getElementById('lbBtn');
 
         function calculateDoses() {
-            const rawValue = document.getElementById('wInput').value;
-            const numValue = parseFloat(rawValue);
-            
-            // Elements
-            const ids = {
-                fP_ml: 'disp_fP_ml', fM_ml: 'disp_fM_ml', e_ml: 'disp_e_ml', d_ml: 'disp_d_ml',
-                fP_mg: 'disp_fP_mg', fM_mg: 'disp_fM_mg', e_mg: 'disp_e_mg', d_mg: 'disp_d_mg'
-            };
-
+            const numValue = parseFloat(wInput.value);
             if (!isNaN(numValue) && numValue > 0) {
-                const weightInKg = (selectedUnit === 'lbs') ? (numValue / 2.20462) : numValue;
-
-                // Fentanyl Pain (1mcg/kg, Max 100mcg)
-                let fPainAmt = Math.min(weightInKg * 1, 100);
-                document.getElementById(ids.fP_mg).innerText = fPainAmt.toFixed(1) + " mcg";
-                document.getElementById(ids.fP_ml).innerText = (fPainAmt / 50).toFixed(2);
-
-                // Fentanyl MFI (2mcg/kg)
-                let fMfiAmt = weightInKg * 2;
-                document.getElementById(ids.fM_mg).innerText = fMfiAmt.toFixed(1) + " mcg";
-                document.getElementById(ids.fM_ml).innerText = (fMfiAmt / 50).toFixed(2);
-
-                // Etomidate (0.3mg/kg)
-                let etomAmt = weightInKg * 0.3;
-                document.getElementById(ids.e_mg).innerText = etomAmt.toFixed(1) + " mg";
-                document.getElementById(ids.e_ml).innerText = (etomAmt / 2).toFixed(2);
-
-                // Diltiazem (0.25mg/kg, Max 25mg)
-                let diltAmt = Math.min(weightInKg * 0.25, 25);
-                document.getElementById(ids.d_mg).innerText = diltAmt.toFixed(1) + " mg";
-                document.getElementById(ids.d_ml).innerText = (diltAmt / 5).toFixed(2);
+                const kg = (selectedUnit === 'lbs') ? (numValue / 2.20462) : numValue;
+                document.getElementById('disp_fP_mg').innerText = Math.min(kg * 1, 100).toFixed(1) + " mcg";
+                document.getElementById('disp_fP_ml').innerText = (Math.min(kg * 1, 100) / 50).toFixed(2);
+                document.getElementById('disp_fM_mg').innerText = (kg * 2).toFixed(1) + " mcg";
+                document.getElementById('disp_fM_ml').innerText = ((kg * 2) / 50).toFixed(2);
+                document.getElementById('disp_e_mg').innerText = (kg * 0.3).toFixed(1) + " mg";
+                document.getElementById('disp_e_ml').innerText = ((kg * 0.3) / 2).toFixed(2);
+                document.getElementById('disp_d_mg').innerText = Math.min(kg * 0.25, 25).toFixed(1) + " mg";
+                document.getElementById('disp_d_ml').innerText = (Math.min(kg * 0.25, 25) / 5).toFixed(2);
             } else {
-                // Reset all to 0
-                document.getElementById(ids.fP_ml).innerText = "0.00";
-                document.getElementById(ids.fM_ml).innerText = "0.00";
-                document.getElementById(ids.e_ml).innerText = "0.00";
-                document.getElementById(ids.d_ml).innerText = "0.00";
-                document.getElementById(ids.fP_mg).innerText = "0 mcg";
-                document.getElementById(ids.fM_mg).innerText = "0 mcg";
-                document.getElementById(ids.e_mg).innerText = "0 mg";
-                document.getElementById(ids.d_mg).innerText = "0 mg";
+                ['disp_fP_ml','disp_fM_ml','disp_e_ml','disp_d_ml'].forEach(id => document.getElementById(id).innerText = "0.00");
+                ['disp_fP_mg','disp_fM_mg'].forEach(id => document.getElementById(id).innerText = "0 mcg");
+                ['disp_e_mg','disp_d_mg'].forEach(id => document.getElementById(id).innerText = "0 mg");
             }
         }
+
+        kgBtn.addEventListener('click', () => {
+            selectedUnit = 'kg';
+            kgBtn.classList.add('active');
+            lbBtn.classList.remove('active');
+            document.getElementById('wLabel').innerText = "PATIENT WEIGHT (KG)";
+            calculateDoses();
+        });
+
+        lbBtn.addEventListener('click', () => {
+            selectedUnit = 'lbs';
+            lbBtn.classList.add('active');
+            kgBtn.classList.remove('active');
+            document.getElementById('wLabel').innerText = "PATIENT WEIGHT (LBS)";
+            calculateDoses();
+        });
+
+        // Robust Android Listeners
+        wInput.addEventListener('input', calculateDoses);
+        wInput.addEventListener('keyup', calculateDoses);
+        wInput.addEventListener('paste', () => setTimeout(calculateDoses, 10));
     </script>
 </body>
 </html>
